@@ -96,12 +96,23 @@ wrong identifier. The integration always uses the correct segment.
 The WhatsApp code was not confirmed by the bot, or was already spent. Request a
 new one.
 
+### `{"code":1000}` or `{"code":1003}` on a device request
+
+The session was revoked. WeLock reports this in the body with HTTP 200: `1000`
+means the access token is no longer valid, `1003` means the refresh token is
+spent as well. The integration handles both by itself — it retries through
+`/Account/refresh/welock` and then performs a full password login, storing the
+rotated tokens back into the config entry. Nothing to do unless the account has
+no stored password (WhatsApp-only login): in that case Home Assistant asks you to
+re-authenticate.
+
 ### Token expires frequently
 
 The cloud invalidates the token when the same account logs in elsewhere (for
-example, another Home Assistant instance or a script that logs in with the
-password). Use one instance, and let the entry refresh its token instead of
-logging in manually.
+example, another Home Assistant instance, the `tools/welock_probe.py` script, or
+a different `identifierForVendor`). Every login kills the previous session. Use
+one instance, and let the entry refresh its own token instead of logging in
+manually.
 
 ## Home Assistant
 
@@ -115,7 +126,9 @@ logging in manually.
 
 The entry failed to set up: check the logs for `ConfigEntryAuthFailed` (reauth
 needed) or `ConfigEntryNotReady` (cloud unreachable). The device page offers
-*Re-authenticate* when relevant.
+*Re-authenticate* when relevant. If the entry is stuck in `setup_retry` with
+`error code 1000`, the session was revoked: with a stored password the next retry
+recovers on its own, otherwise start the reauth flow.
 
 ## Collecting a good report
 

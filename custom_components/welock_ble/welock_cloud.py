@@ -117,6 +117,21 @@ def _looks_like_error(payload: Any) -> str | None:
     return str(payload.get("msg") or payload.get("message") or f"error code {code_int}")
 
 
+AUTH_ERROR_CODES = frozenset({1000, 1003})
+"""Body-level codes that mean the session is gone (see ``_authorized``)."""
+
+
+def _error_code(payload: Any) -> int | None:
+    """Return the numeric code of a failed envelope, when present."""
+    if not isinstance(payload, dict):
+        return None
+    code = payload.get("code", payload.get("Code", payload.get("status")))
+    try:
+        return int(code) if code is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
 class WeLockCloud:
     """Minimal asynchronous client for the WeLock mobile API."""
 
@@ -394,6 +409,11 @@ class WeLockCloud:
         if status >= 400:
             raise WeLockApiError(f"{path}: HTTP {status}")
         if error:
+            # Without a password the session cannot be rebuilt locally: report
+            # an authentication failure so Home Assistant starts a reauth flow
+            # instead of retrying the setup forever.
+            if not self._password and _error_code(parsed) in AUTH_ERROR_CODES:
+                raise WeLockAuthError(f"{path}: {error}")
             raise WeLockApiError(f"{path}: {error}")
         return _unwrap(parsed)
 
