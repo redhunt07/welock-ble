@@ -502,6 +502,28 @@ third-party client (the lock works either way) but keeps the cloud history consi
 
 ---
 
+### Session lifecycle (observed live)
+
+`POST /api/Account/token/welock` returns a ~560 character access token plus a
+`refresh_token`; both are stored in the config entry. Sessions are single-use per
+account: a login performed elsewhere — the official app, a second HA instance, or
+`tools/welock_probe.py`, which uses its own `identifierForVendor` — invalidates the
+previous token.
+
+Revocation is reported in the envelope with HTTP 200, never as a 401:
+
+| reply | meaning |
+| --- | --- |
+| `{"code":1000}` | access token no longer valid |
+| `{"code":1003}` | refresh token spent as well |
+
+Recovery is `POST /api/Account/refresh/welock` with **both** tokens in the body
+(the endpoint ignores `Authorization`; a missing field is named in `msg`, e.g.
+`{"code":1002,"msg":"access_token"}`). When the refresh token is gone too, a full
+password login rebuilds the session; the rotated pair is written back to the
+entry. A WhatsApp-only entry has no password, so it raises an authentication
+failure and Home Assistant starts the reauth flow.
+
 ## 5. Lock identity / BLE password
 
 `BleLockInfo` (`package:welock_common/models/ble_lock_model.dart`, class id 328, size `0x1c`)
