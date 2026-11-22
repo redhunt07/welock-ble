@@ -77,7 +77,49 @@ def _find_battery(data: Any) -> int | None:
             found = _find_battery(value)
             if found is not None:
                 return found
+        elif isinstance(value, list):
+            for item in value:
+                found = _find_battery(item)
+                if found is not None:
+                    return found
     return None
+
+
+def _lock_radio(info: Any, device_name: str) -> dict[str, Any] | None:
+    """Return the ``ble`` entry that belongs to the lock itself.
+
+    ``device/GetDeivceInfo`` lists every radio of the account: the lock and,
+    when the user owns one, the WIFIBOX gateway.  The gateway reports power 0
+    and a different firmware, so the entry must be selected by name and never
+    by position (the order is not stable).
+    """
+    if not isinstance(info, dict):
+        return None
+    for radio in info.get("ble") or []:
+        if not isinstance(radio, dict):
+            continue
+        if str(radio.get("deviceName") or "") == device_name:
+            return radio
+    return None
+
+
+def _compose_version(radio: dict[str, Any] | None) -> str | None:
+    """Build a firmware string from a ``ble`` entry of the lock."""
+    if not radio:
+        return None
+    version = radio.get("version")
+    if not isinstance(version, dict):
+        return None
+    parts: list[str] = []
+    if version.get("modelName"):
+        parts.append(str(version["modelName"]))
+    if version.get("modelNumber") is not None:
+        parts.append(f"model {version['modelNumber']}")
+    if version.get("hardware") is not None:
+        parts.append(f"hw {version['hardware']}")
+    if version.get("firmware") is not None:
+        parts.append(f"fw {version['firmware']}")
+    return " / ".join(parts) or None
 
 
 def _find_status(data: Any) -> int | None:
@@ -149,7 +191,12 @@ class WeLockCoordinator(DataUpdateCoordinator[WeLockState]):
             raise UpdateFailed(f"cloud request failed: {err}") from err
 
         self.state.extra = info
-        self.state.battery = _find_battery(info)
+        radio = _lock_radio(info, self.device_name)
+        if radio is not None:
+            self.state.battery = _to_int(radio.get("power"))
+            self.state.version = _compose_version(radio) or self.state.version
+        if self.state.battery is None:
+            self.state.battery = _find_battery(info)
         self.state.lock_status = _find_status(info)
         if not self.state.mac:
             self.state.mac = info.get("deviceMac") if isinstance(info, dict) else None

@@ -20,30 +20,6 @@ from .const import CONF_BLE_ADDRESS, CONF_DEVICE_NUMBER, DOMAIN
 from .coordinator import WeLockCoordinator
 
 
-def _firmware(state_extra: Any) -> str | None:
-    """Compose a firmware string from ``device/GetDeivceInfo``'s ``ble`` list."""
-    if not isinstance(state_extra, dict):
-        return None
-    for radio in state_extra.get("ble") or []:
-        if not isinstance(radio, dict):
-            continue
-        version = radio.get("version")
-        if not isinstance(version, dict):
-            continue
-        parts: list[str] = []
-        if version.get("modelName"):
-            parts.append(str(version["modelName"]))
-        if version.get("modelNumber") is not None:
-            parts.append(f"model {version['modelNumber']}")
-        if version.get("hardware") is not None:
-            parts.append(f"hw {version['hardware']}")
-        if version.get("firmware") is not None:
-            parts.append(f"fw {version['firmware']}")
-        if parts:
-            return " / ".join(parts)
-    return None
-
-
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
@@ -146,7 +122,7 @@ class WeLockFirmwareSensor(_WeLockSensor):
 
     @property
     def native_value(self) -> str | None:
-        return _firmware(self.coordinator.state.extra)
+        return self.coordinator.state.version
 
 
 class WeLockMacSensor(_WeLockSensor):
