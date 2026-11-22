@@ -375,9 +375,24 @@ class WeLockCloud:
         if status == 401:
             await self.login()
             status, parsed = await self._raw_request(path, payload, authorized=True)
+
+        error = _looks_like_error(parsed)
+        if error and status < 400:
+            # A revoked session is reported in the body, not with HTTP 401:
+            # ``code 1000`` means the access token is no longer valid and
+            # ``code 1003`` means the refresh token is gone as well (another
+            # login with a different identifier invalidates the previous one).
+            # Try the refresh token, then fall back to a full login.
+            await self.refresh()
+            status, parsed = await self._raw_request(path, payload, authorized=True)
+            error = _looks_like_error(parsed)
+            if error and status < 400 and self._password:
+                await self.login()
+                status, parsed = await self._raw_request(path, payload, authorized=True)
+                error = _looks_like_error(parsed)
+
         if status >= 400:
             raise WeLockApiError(f"{path}: HTTP {status}")
-        error = _looks_like_error(parsed)
         if error:
             raise WeLockApiError(f"{path}: {error}")
         return _unwrap(parsed)

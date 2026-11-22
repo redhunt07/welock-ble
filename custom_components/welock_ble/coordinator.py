@@ -175,6 +175,27 @@ class WeLockCoordinator(DataUpdateCoordinator[WeLockState]):
             mac=str(address) if address else None,
         )
 
+    def _persist_tokens(self) -> None:
+        """Store a rotated token so a restart does not need a new login."""
+        token = self.cloud.token
+        refresh = self.cloud.refresh_token
+        if not token:
+            return
+        if (
+            token == self.entry.data.get(CONF_TOKEN)
+            and refresh == self.entry.data.get(CONF_REFRESH_TOKEN)
+        ):
+            return
+        self.hass.config_entries.async_update_entry(
+            self.entry,
+            data={
+                **self.entry.data,
+                CONF_TOKEN: token,
+                CONF_REFRESH_TOKEN: refresh,
+            },
+        )
+        _LOGGER.debug("WeLock session token stored in the config entry")
+
     async def _async_update_data(self) -> WeLockState:
         """Refresh cloud-side information about the lock."""
         try:
@@ -200,6 +221,7 @@ class WeLockCoordinator(DataUpdateCoordinator[WeLockState]):
         self.state.lock_status = _find_status(info)
         if not self.state.mac:
             self.state.mac = info.get("deviceMac") if isinstance(info, dict) else None
+        self._persist_tokens()
         return self.state
 
     async def async_refresh_lock_info(self) -> None:
@@ -243,7 +265,7 @@ class WeLockCoordinator(DataUpdateCoordinator[WeLockState]):
                     random_factor=random_factor,
                     random_factor_data=None,
                 )
-            except WeLockApiError as err:
+            except (WeLockApiError, WeLockAuthError) as err:
                 raise WeLockBLEError(f"cloud unlock command failed: {err}") from err
             command = response.get("command") if isinstance(response, dict) else None
             if not command:
@@ -253,9 +275,11 @@ class WeLockCoordinator(DataUpdateCoordinator[WeLockState]):
         try:
             result = await self.ble.async_unlock(command_provider=_frame_for)
         except WeLockBLEError:
+            self._persist_tokens()
             self.state.link_ok = False
             self.async_set_updated_data(self.state)
             raise
+        self._persist_tokens()
         self.state.last_command = str(result.get("token"))
         self.state.last_reply = result
         self.state.link_ok = bool(result.get("success"))
