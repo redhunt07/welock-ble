@@ -1,0 +1,79 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WeLock account",
+        "description": "Sign in with the same account you use in the WeLock app. The cloud generates the Bluetooth command frames.",
+        "data": {
+          "account": "Email or phone (international prefix, e.g. 390000000000)",
+          "auth_mode": "Login method"
+        }
+      },
+      "password": {
+        "title": "Password",
+        "description": "Password of the WeLock account.",
+        "data": {
+          "password": "Password"
+        }
+      },
+      "code": {
+        "title": "WhatsApp code",
+        "description": "WeLock uses a WhatsApp handshake: send the code below to the WeLock bot on WhatsApp, wait for its \"ok\" reply, then confirm here. If the app gave you a different code, type that one instead. ({account})",
+        "data": {
+          "code": "Code sent to the bot"
+        }
+      },
+      "device": {
+        "title": "Select lock",
+        "description": "{count} lock(s) found on this account. Confirm the Bluetooth address of the lock (as seen by your adapter or ESPHome proxy). {hint}",
+        "data": {
+          "device_number": "Lock",
+          "ble_address": "Bluetooth MAC address",
+          "pair": "Pair / bond before writing"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Wrong credentials",
+      "invalid_code": "Wrong or expired code",
+      "cannot_connect": "Cannot reach the WeLock cloud",
+      "no_devices": "No locks on this account",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This lock is already configured",
+      "reauth_successful": "Re-authentication successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WeLock options",
+        "description": "Polling interval for the cloud data and the window used to report the lock as unlocked after an open.",
+        "data": {
+          "scan_interval": "Cloud polling interval (seconds)",
+          "auto_lock_seconds": "Unlocked window (seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": { "name": "Battery" },
+      "status_code": { "name": "Lock status code" },
+      "model": { "name": "Model" },
+      "firmware": { "name": "Firmware" },
+      "mac": { "name": "Bluetooth address" },
+      "device_number": { "name": "Device number" },
+      "last_token": { "name": "Last token" },
+      "last_reply": { "name": "Last reply" }
+    },
+    "binary_sensor": {
+      "reachable": { "name": "Reachable" }
+    },
+    "button": {
+      "open": { "name": "Open" },
+      "refresh": { "name": "Refresh data" }
+    }
+  }
+}

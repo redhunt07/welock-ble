@@ -1,0 +1,79 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Account WeLock",
+        "description": "Accedi con lo stesso account che usi nell'app WeLock. Il cloud genera i frame Bluetooth dei comandi.",
+        "data": {
+          "account": "Email o telefono (prefisso internazionale, es. 390000000000)",
+          "auth_mode": "Metodo di accesso"
+        }
+      },
+      "password": {
+        "title": "Password",
+        "description": "Password dell'account WeLock.",
+        "data": {
+          "password": "Password"
+        }
+      },
+      "code": {
+        "title": "Codice WhatsApp",
+        "description": "WeLock usa un handshake WhatsApp: invia il codice qui sotto al bot WeLock su WhatsApp, attendi la risposta \"ok\" e poi conferma qui. Se l'app ti ha dato un codice diverso, scrivi quello. ({account})",
+        "data": {
+          "code": "Codice inviato al bot"
+        }
+      },
+      "device": {
+        "title": "Seleziona la serratura",
+        "description": "Trovate {count} serrature su questo account. Conferma l'indirizzo Bluetooth della serratura (quello visto dal tuo adattatore o dal proxy ESPHome). {hint}",
+        "data": {
+          "device_number": "Serratura",
+          "ble_address": "Indirizzo MAC Bluetooth",
+          "pair": "Accoppia / associa prima di scrivere"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Credenziali errate",
+      "invalid_code": "Codice errato o scaduto",
+      "cannot_connect": "Impossibile raggiungere il cloud WeLock",
+      "no_devices": "Nessuna serratura su questo account",
+      "unknown": "Errore inatteso"
+    },
+    "abort": {
+      "already_configured": "Questa serratura è già configurata",
+      "reauth_successful": "Riautenticazione riuscita"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni WeLock",
+        "description": "Intervallo di aggiornamento dei dati cloud e finestra in cui la serratura viene mostrata aperta dopo un'apertura.",
+        "data": {
+          "scan_interval": "Intervallo di polling del cloud (secondi)",
+          "auto_lock_seconds": "Finestra di apertura (secondi)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": { "name": "Batteria" },
+      "status_code": { "name": "Codice di stato serratura" },
+      "model": { "name": "Modello" },
+      "firmware": { "name": "Firmware" },
+      "mac": { "name": "Indirizzo Bluetooth" },
+      "device_number": { "name": "Numero dispositivo" },
+      "last_token": { "name": "Ultimo token" },
+      "last_reply": { "name": "Ultima risposta" }
+    },
+    "binary_sensor": {
+      "reachable": { "name": "Raggiungibile" }
+    },
+    "button": {
+      "open": { "name": "Apri" },
+      "refresh": { "name": "Aggiorna dati" }
+    }
+  }
+}

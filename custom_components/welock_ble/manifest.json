@@ -1,0 +1,22 @@
+{
+  "domain": "welock_ble",
+  "name": "WeLock BLE",
+  "codeowners": [
+    "@redhunt07"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "bluetooth"
+  ],
+  "documentation": "https://github.com/redhunt07/welock-ble",
+  "integration_type": "device",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/redhunt07/welock-ble/issues",
+  "loggers": [
+    "welock_ble"
+  ],
+  "requirements": [
+    "bleak>=0.22.0"
+  ],
+  "version": "0.2.0"
+}
