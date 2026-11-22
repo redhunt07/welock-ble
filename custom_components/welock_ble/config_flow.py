@@ -85,6 +85,7 @@ class WeLockConfigFlow(ConfigFlow, domain=DOMAIN):
         self._token: str | None = None
         self._refresh_token: str | None = None
         self._pending_code: str = ""
+        self._pending_link: str = ""
         self._devices: list[dict[str, Any]] = []
 
     # -- helpers ---------------------------------------------------------
@@ -94,7 +95,6 @@ class WeLockConfigFlow(ConfigFlow, domain=DOMAIN):
             self._account,
             self._password,
             self._identifier,
-            debug=True,
         )
 
     async def _async_finish_login(self, client: WeLockCloud) -> dict[str, str]:
@@ -175,8 +175,10 @@ class WeLockConfigFlow(ConfigFlow, domain=DOMAIN):
                 # The cloud answers 1002 for several non-fatal situations (code
                 # just sent, rate limit, unknown account).  Do not block the
                 # flow: the user can still type the code they received.
+                client = self._client()
                 try:
-                    self._pending_code = await self._client().request_code()
+                    self._pending_code = await client.request_code()
+                    self._pending_link = client.pending_link or ""
                 except WeLockError as err:
                     _LOGGER.warning("WeLock code request failed: %s", err)
                 return await self.async_step_code()
@@ -253,6 +255,7 @@ class WeLockConfigFlow(ConfigFlow, domain=DOMAIN):
             description_placeholders={
                 "account": self._account,
                 "code": self._pending_code or "the code shown by the app",
+                "link": self._pending_link or "https://wa.me/",
             },
         )
 
@@ -337,8 +340,10 @@ class WeLockConfigFlow(ConfigFlow, domain=DOMAIN):
             self._auth_mode = entry.data.get(CONF_AUTH_MODE, AUTH_MODE_PASSWORD)
             self._password = entry.data.get(CONF_PASSWORD, "")
         if self._auth_mode == AUTH_MODE_CODE:
+            client = self._client()
             try:
-                self._pending_code = await self._client().request_code()
+                self._pending_code = await client.request_code()
+                self._pending_link = client.pending_link or ""
             except WeLockError as err:
                 _LOGGER.debug("reauth code request failed: %s", err)
             return await self.async_step_code()

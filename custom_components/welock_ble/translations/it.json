@@ -18,7 +18,7 @@
       },
       "code": {
         "title": "Codice WhatsApp",
-        "description": "WeLock usa un handshake WhatsApp: invia il codice qui sotto al bot WeLock su WhatsApp, attendi la risposta \"ok\" e poi conferma qui. Se l'app ti ha dato un codice diverso, scrivi quello. ({account})",
+        "description": "WeLock usa un handshake via WhatsApp: invia il codice qui sotto al bot WeLock su WhatsApp, attendi la risposta \"ok\" e poi conferma qui. Se l'app ti ha dato un codice diverso, scrivi quello. Apri {link} per inviarlo, oppure copia {code} a mano. ({account})",
         "data": {
           "code": "Codice inviato al bot"
         }
@@ -59,21 +59,43 @@
   },
   "entity": {
     "sensor": {
-      "battery": { "name": "Batteria" },
-      "status_code": { "name": "Codice di stato serratura" },
-      "model": { "name": "Modello" },
-      "firmware": { "name": "Firmware" },
-      "mac": { "name": "Indirizzo Bluetooth" },
-      "device_number": { "name": "Numero dispositivo" },
-      "last_token": { "name": "Ultimo token" },
-      "last_reply": { "name": "Ultima risposta" }
+      "battery": {
+        "name": "Batteria"
+      },
+      "status_code": {
+        "name": "Codice di stato serratura"
+      },
+      "model": {
+        "name": "Modello"
+      },
+      "firmware": {
+        "name": "Firmware"
+      },
+      "mac": {
+        "name": "Indirizzo Bluetooth"
+      },
+      "device_number": {
+        "name": "Numero dispositivo"
+      },
+      "last_token": {
+        "name": "Ultimo token"
+      },
+      "last_reply": {
+        "name": "Ultima risposta"
+      }
     },
     "binary_sensor": {
-      "reachable": { "name": "Raggiungibile" }
+      "reachable": {
+        "name": "Raggiungibile"
+      }
     },
     "button": {
-      "open": { "name": "Apri" },
-      "refresh": { "name": "Aggiorna dati" }
+      "open": {
+        "name": "Apri"
+      },
+      "refresh": {
+        "name": "Aggiorna dati"
+      }
     }
   }
 }

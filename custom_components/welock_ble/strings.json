@@ -18,7 +18,7 @@
       },
       "code": {
         "title": "WhatsApp code",
-        "description": "WeLock uses a WhatsApp handshake: send the code below to the WeLock bot on WhatsApp, wait for its \"ok\" reply, then confirm here. If the app gave you a different code, type that one instead. ({account})",
+        "description": "WeLock uses a WhatsApp handshake: send the code below to the WeLock bot on WhatsApp, wait for its \"ok\" reply, then confirm here. If the app gave you a different code, type that one instead. Open {link} to send it, or copy {code} manually. ({account})",
         "data": {
           "code": "Code sent to the bot"
         }
@@ -59,21 +59,43 @@
   },
   "entity": {
     "sensor": {
-      "battery": { "name": "Battery" },
-      "status_code": { "name": "Lock status code" },
-      "model": { "name": "Model" },
-      "firmware": { "name": "Firmware" },
-      "mac": { "name": "Bluetooth address" },
-      "device_number": { "name": "Device number" },
-      "last_token": { "name": "Last token" },
-      "last_reply": { "name": "Last reply" }
+      "battery": {
+        "name": "Battery"
+      },
+      "status_code": {
+        "name": "Lock status code"
+      },
+      "model": {
+        "name": "Model"
+      },
+      "firmware": {
+        "name": "Firmware"
+      },
+      "mac": {
+        "name": "Bluetooth address"
+      },
+      "device_number": {
+        "name": "Device number"
+      },
+      "last_token": {
+        "name": "Last token"
+      },
+      "last_reply": {
+        "name": "Last reply"
+      }
     },
     "binary_sensor": {
-      "reachable": { "name": "Reachable" }
+      "reachable": {
+        "name": "Reachable"
+      }
     },
     "button": {
-      "open": { "name": "Open" },
-      "refresh": { "name": "Refresh data" }
+      "open": {
+        "name": "Open"
+      },
+      "refresh": {
+        "name": "Refresh data"
+      }
     }
   }
 }
